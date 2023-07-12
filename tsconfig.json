@@ -9,8 +9,16 @@
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "noUnusedLocals": true,
+        "strictNullChecks": true,
         "strictPropertyInitialization": true,
-        "typeRoots": [ "./node_modules/@webgpu/types", "./node_modules/@types"]
+        "typeRoots": [
+            "./node_modules/@webgpu/types",
+            "./node_modules/@types"
+        ],
+        "outDir": "build"
     },
-    "include": ["src/**/*.js", "rollup.config.mjs"]
+    "include": [
+        "src/**/*.js",
+        "rollup.config.mjs"
+    ]
 }
