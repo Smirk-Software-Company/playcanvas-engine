@@ -1320,6 +1320,8 @@ class LitShader {
 
                         backend.append(`    float shadow${i} = getShadow${shadowReadMode}(${shadowCoordArgs});`);
                         backend.append(`    dAtten *= mix(1.0, shadow${i}, light${i}_shadowIntensity);`);
+                        // backend.append(`    dAtten *= mix(1.0, shadow${i}, shadow${i} * light${i}_shadowIntensity);`);
+                        // backend.append(`    dAtten *= mix(1.0, 0.0, clamp(shadow${i} * light${i}_shadowIntensity, 0.0, 1.0));`);
                     }
                 }
 
