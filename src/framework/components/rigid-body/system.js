@@ -588,6 +588,9 @@ class RigidBodyComponentSystem extends ComponentSystem {
         ammoRayEnd.setValue(end.x, end.y, end.z);
         const rayCallback = new Ammo.AllHitsRayResultCallback(ammoRayStart, ammoRayEnd);
 
+        // Ignore backfaces
+        rayCallback.set_m_flags(1 << 0);
+
         if (typeof options.filterCollisionGroup === 'number') {
             rayCallback.set_m_collisionFilterGroup(options.filterCollisionGroup);
         }
