@@ -55,7 +55,7 @@ class LitShader {
         /**
          * @param {import('../../../platform/graphics/graphics-device.js').GraphicsDevice} device - The
          * graphics device.
-         * @param {import('../../../scene/materials/lit-options.js').LitOptions} options - The
+         * @param {import('./lit-shader-options.js').LitShaderOptions} options - The
          * lit options.
          * @ignore
          */
@@ -68,14 +68,13 @@ class LitShader {
         };
 
         if (options.chunks) {
-            this.chunks = {};
-
             const userChunks = options.chunks;
 
             // #if _DEBUG
-            validateUserChunks(options.chunks);
+            validateUserChunks(userChunks);
             // #endif
 
+            this.chunks = Object.create(shaderChunks);
             for (const chunkName in shaderChunks) {
                 if (userChunks.hasOwnProperty(chunkName)) {
                     const chunk = userChunks[chunkName];
@@ -85,8 +84,6 @@ class LitShader {
                         }
                     }
                     this.chunks[chunkName] = chunk;
-                } else {
-                    this.chunks[chunkName] = shaderChunks[chunkName];
                 }
             }
         } else {
@@ -98,8 +95,15 @@ class LitShader {
 
         this.lighting = (options.lights.length > 0) || options.dirLightMapEnabled || options.clusteredLightingEnabled;
         this.reflections = !!options.reflectionSource;
-        this.needsNormal = this.lighting || this.reflections || options.useSpecular || options.ambientSH || options.heightMapEnabled || options.enableGGXSpecular ||
-            (options.clusteredLightingEnabled && !this.shadowPass) || options.clearCoatNormalMapEnabled;
+        this.needsNormal =
+            this.lighting ||
+            this.reflections ||
+            options.useSpecular ||
+            options.ambientSH ||
+            options.useHeights ||
+            options.enableGGXSpecular ||
+            (options.clusteredLightingEnabled && !this.shadowPass) ||
+            options.useClearCoatNormals;
         this.needsNormal = this.needsNormal && !this.shadowPass;
         this.needsSceneColor = options.useDynamicRefraction;
         this.needsScreenSize = options.useDynamicRefraction;
@@ -231,7 +235,7 @@ class LitShader {
                 codeBody += "   vNormalV    = getViewNormal();\n";
             }
 
-            if (options.hasTangents && (options.heightMapEnabled || options.normalMapEnabled || options.enableGGXSpecular)) {
+            if (options.hasTangents && (options.useHeights || options.useNormals || options.enableGGXSpecular)) {
                 this.attributes.vertex_tangent = SEMANTIC_TANGENT;
                 code += chunks.tangentBinormalVS;
                 codeBody += "   vTangentW   = getTangent();\n";
@@ -505,7 +509,6 @@ class LitShader {
 
         const isVsm = shadowType === SHADOW_VSM8 || shadowType === SHADOW_VSM16 || shadowType === SHADOW_VSM32;
         const applySlopeScaleBias = !device.webgl2 && device.extStandardDerivatives && !device.isWebGPU;
-        const needsLinearizedDepth = shadowType === SHADOW_PCSS;
 
         // Use perspective depth for:
         // Directional: Always since light has no position
@@ -516,12 +519,7 @@ class LitShader {
         // Flag if we are using non-standard depth, i.e gl_FragCoord.z
         let hasModifiedDepth = false;
         if (usePerspectiveDepth) {
-            if (needsLinearizedDepth) {
-                code += "    float depth = linearizeDepth(gl_FragCoord.z, camera_params);\n";
-                hasModifiedDepth = true;
-            } else {
-                code += "    float depth = gl_FragCoord.z;\n";
-            }
+            code += "    float depth = gl_FragCoord.z;\n";
         } else {
             code += "    float depth = min(distance(view_position, vPositionW) / light_radius, 0.99999);\n";
             hasModifiedDepth = true;
@@ -530,11 +528,6 @@ class LitShader {
         if (applySlopeScaleBias) {
             code += "    float minValue = 2.3374370500153186e-10; //(1.0 / 255.0) / (256.0 * 256.0 * 256.0);\n";
             code += "    depth += polygonOffset.x * max(abs(dFdx(depth)), abs(dFdy(depth))) + minValue * polygonOffset.y;\n";
-            hasModifiedDepth = true;
-        }
-
-        if (usePerspectiveDepth && needsLinearizedDepth && usePackedDepth) {
-            code += "    depth *= 1.0 / (camera_params.y - camera_params.z);\n";
             hasModifiedDepth = true;
         }
 
@@ -727,13 +720,13 @@ class LitShader {
         }
 
         // TBN
-        const hasTBN = this.needsNormal && (options.normalMapEnabled || options.clearCoatNormalMapEnabled || (options.enableGGXSpecular && !options.heightMapEnabled));
+        const hasTBN = this.needsNormal && (options.useNormals || options.useClearCoatNormals || (options.enableGGXSpecular && !options.useHeights));
 
         if (hasTBN) {
             if (options.hasTangents) {
                 func.append(options.fastTbn ? chunks.TBNfastPS : chunks.TBNPS);
             } else {
-                if (device.extStandardDerivatives && (options.normalMapEnabled || options.clearCoatNormalMapEnabled)) {
+                if (device.extStandardDerivatives && (options.useNormals || options.useClearCoatNormals)) {
                     func.append(chunks.TBNderivativePS.replace(/\$UV/g, this.lightingUv));
                 } else {
                     func.append(chunks.TBNObjectSpacePS);
@@ -775,9 +768,7 @@ class LitShader {
             }
         }
 
-        const useAo = options.aoMapEnabled || options.useAoVertexColors;
-
-        if (useAo) {
+        if (options.useAo) {
             func.append(chunks.aoDiffuseOccPS);
             switch (options.occludeSpecular) {
                 case SPECOCC_AO:
@@ -904,11 +895,11 @@ class LitShader {
         func.append(chunks.combinePS);
 
         // lightmap support
-        if (options.lightMapEnabled || options.useLightMapVertexColors) {
+        if (options.lightMapEnabled) {
             func.append((options.useSpecular && options.dirLightMapEnabled) ? chunks.lightmapDirAddPS : chunks.lightmapAddPS);
         }
 
-        const addAmbient = (!options.lightMapEnabled && !options.useLightMapVertexColors) || options.lightMapWithoutAmbient;
+        const addAmbient = !options.lightMapEnabled || options.lightMapWithoutAmbient;
 
         if (addAmbient) {
             if (options.ambientSource === 'ambientSH') {
@@ -995,7 +986,7 @@ class LitShader {
                 code.append("    dVertexNormalW = normalize(vNormalW);");
             }
 
-            if ((options.heightMapEnabled || options.normalMapEnabled) && options.hasTangents) {
+            if ((options.useHeights || options.useNormals) && options.hasTangents) {
                 if (options.twoSidedLighting) {
                     code.append("    dTangentW = gl_FrontFacing ? vTangentW * twoSidedLightingNegScaleFactor : -vTangentW * twoSidedLightingNegScaleFactor;");
                     code.append("    dBinormalW = gl_FrontFacing ? vBinormalW * twoSidedLightingNegScaleFactor : -vBinormalW * twoSidedLightingNegScaleFactor;");
@@ -1027,7 +1018,8 @@ class LitShader {
 
         if ((this.lighting && options.useSpecular) || this.reflections) {
             if (options.useMetalness) {
-                backend.append("    litArgs_specularity = getSpecularModulate(litArgs_specularity, litArgs_albedo, litArgs_metalness);");
+                backend.append("    float f0 = 1.0 / litArgs_ior; f0 = (f0 - 1.0) / (f0 + 1.0); f0 *= f0;");
+                backend.append("    litArgs_specularity = getSpecularModulate(litArgs_specularity, litArgs_albedo, litArgs_metalness, f0);");
                 backend.append("    litArgs_albedo = getAlbedoModulate(litArgs_albedo, litArgs_metalness);");
             }
 
@@ -1055,11 +1047,11 @@ class LitShader {
             backend.append("    dDiffuseLight *= material_ambient;");
         }
 
-        if (useAo && !options.occludeDirect) {
+        if (options.useAo && !options.occludeDirect) {
             backend.append("    occludeDiffuse(litArgs_ao);");
         }
 
-        if (options.lightMapEnabled || options.useLightMapVertexColors) {
+        if (options.lightMapEnabled) {
             backend.append(`    addLightMap(
                 litArgs_lightmap, 
                 litArgs_lightmapDir, 
@@ -1441,7 +1433,8 @@ class LitShader {
                         litArgs_gloss, 
                         litArgs_specularity, 
                         litArgs_albedo, 
-                        litArgs_transmission
+                        litArgs_transmission,
+                        litArgs_ior
                     #if defined(LIT_IRIDESCENCE)
                         , iridescenceFresnel, 
                         litArgs_iridescence
@@ -1450,7 +1443,7 @@ class LitShader {
             }
         }
 
-        if (useAo) {
+        if (options.useAo) {
             if (options.occludeDirect) {
                 backend.append("    occludeDiffuse(litArgs_ao);");
             }
@@ -1552,7 +1545,6 @@ class LitShader {
             this.varyings +
             this.varyingDefines +
             this._fsGetBaseCode() +
-            (options.detailModes ? chunks.detailModesPS : "") +
             structCode +
             this.frontendDecl +
             mergedCode;
@@ -1560,6 +1552,18 @@ class LitShader {
         return result;
     }
 
+    /**
+     * Generates a fragment shader. Please make sure to update src/deprecated/deprecated.js in
+     * case `this.fshader` does not longer contain the entire fragment shader once this function
+     * is done because we handle backwards compatibility there for old shaders. This allows us
+     * to have deprecation-free tree shaking while still fixing shaders for full builds.
+     *
+     * @param {string} frontendDecl - Frontend declarations like `float dAlpha;`
+     * @param {string} frontendCode - Frontend code containing `getOpacity()` etc.
+     * @param {string} frontendFunc - E.g. `evaluateFrontend();`
+     * @param {string} lightingUv - E.g. `vUv0`
+     * @ignore
+     */
     generateFragmentShader(frontendDecl, frontendCode, frontendFunc, lightingUv) {
         const options = this.options;
 
@@ -1579,10 +1583,10 @@ class LitShader {
         } else {
             this.fshader = this._fsGetLitPassCode();
         }
+        this.handleCompatibility?.();
     }
 
     getDefinition() {
-
         const definition = ShaderUtils.createDefinition(this.device, {
             name: 'LitShader',
             attributes: this.attributes,
@@ -1590,7 +1594,7 @@ class LitShader {
             fragmentCode: this.fshader
         });
 
-        if (this.options.isForwardPass) {
+        if (this.shaderPassInfo.isForward) {
             definition.tag = SHADERTAG_MATERIAL;
         }
 
