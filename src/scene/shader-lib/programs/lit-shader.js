@@ -223,6 +223,8 @@ class LitShader {
             this.attributes.instance_line2 = SEMANTIC_ATTR13;
             this.attributes.instance_line3 = SEMANTIC_ATTR14;
             this.attributes.instance_line4 = SEMANTIC_ATTR15;
+            this.attributes.instance_line5 = SEMANTIC_ATTR11;
+            this.attributes.instance_line6 = SEMANTIC_ATTR10;
             code += chunks.instancingVS;
         }
 
