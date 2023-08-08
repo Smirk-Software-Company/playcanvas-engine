@@ -87,6 +87,8 @@
     "LICENSE",
     "package.json",
     "README.md",
+    "README-ja.md",
+    "README-kr.md",
     "README-zh.md"
   ],
   "devDependencies": {
