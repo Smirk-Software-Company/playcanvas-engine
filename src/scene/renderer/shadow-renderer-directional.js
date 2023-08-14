@@ -10,6 +10,7 @@ import {
 import { RenderPass } from '../../platform/graphics/render-pass.js';
 
 import { ShadowMap } from './shadow-map.js';
+import { Quat } from '../../core/math/quat.js';
 
 const visibleSceneAabb = new BoundingBox();
 const center = new Vec3();
@@ -105,7 +106,8 @@ class ShadowRendererDirectional {
             shadowCamNode.setPosition(lightNode.getPosition());
 
             // Camera looks down the negative Z, and directional light points down the negative Y
-            shadowCamNode.setRotation(lightNode.getRotation());
+            // shadowCamNode.setRotation(lightNode.getRotation());
+            shadowCamNode.setRotation(Quat.IDENTITY);
             shadowCamNode.rotateLocal(-90, 0, 0);
 
             // get camera's frustum corners for the cascade, convert them to world space and find their center
