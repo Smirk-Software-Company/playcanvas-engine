@@ -107,7 +107,8 @@ class ShadowRendererDirectional {
 
             // Camera looks down the negative Z, and directional light points down the negative Y
             // shadowCamNode.setRotation(lightNode.getRotation());
-            shadowCamNode.setRotation(Quat.IDENTITY);
+            // shadowCamNode.setRotation(Quat.IDENTITY);
+            shadowCamNode.setRotation(new Quat().setFromEulerAngles(-2, 0, 0));
             shadowCamNode.rotateLocal(-90, 0, 0);
 
             // get camera's frustum corners for the cascade, convert them to world space and find their center
