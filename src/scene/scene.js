@@ -242,7 +242,7 @@ class Scene extends EventHandler {
         // clustered lighting
         this._clusteredLightingEnabled = true;
         this._lightingParams = new LightingParams(this.device.supportsAreaLights, this.device.maxTextureSize, () => {
-            this._layers._dirtyLights = true;
+            this.updateShaders = true;
         });
 
         this._stats = {
@@ -263,7 +263,6 @@ class Scene extends EventHandler {
         this.updateShaders = true;
 
         this._shaderVersion = 0;
-        this._statsUpdated = false;
 
         // immediate rendering
         this.immediate = new Immediate(this.device);
@@ -617,7 +616,7 @@ class Scene extends EventHandler {
                 this._skyboxRotationMat3.setIdentity();
             } else {
                 this._skyboxRotationMat4.setTRS(Vec3.ZERO, value, Vec3.ONE);
-                this._skyboxRotationMat4.invertTo3x3(this._skyboxRotationMat3);
+                this._skyboxRotationMat3.invertMat4(this._skyboxRotationMat4);
             }
 
             // only reset sky / rebuild scene shaders if rotation changed away from identity for the first time
@@ -703,7 +702,7 @@ class Scene extends EventHandler {
             this.skyboxRotation = (new Quat()).setFromEulerAngles(render.skyboxRotation[0], render.skyboxRotation[1], render.skyboxRotation[2]);
         }
 
-        this.clusteredLightingEnabled = render.clusteredLightingEnabled;
+        this.clusteredLightingEnabled = render.clusteredLightingEnabled ?? false;
         this.lighting.applySettings(render);
 
         // bake settings

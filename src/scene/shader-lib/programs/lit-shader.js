@@ -23,10 +23,10 @@ import {
 import { LightsBuffer } from '../../lighting/lights-buffer.js';
 import { ShaderPass } from '../../shader-pass.js';
 
-import { begin, end, fogCode, gammaCode, skinCode, tonemapCode } from './common.js';
 import { validateUserChunks } from '../chunks/chunk-validation.js';
 import { ShaderUtils } from '../../../platform/graphics/shader-utils.js';
 import { ChunkBuilder } from '../chunk-builder.js';
+import { ShaderGenerator } from './shader-generator.js';
 
 const builtinAttributes = {
     vertex_normal: SEMANTIC_NORMAL,
@@ -66,6 +66,12 @@ class LitShader {
         this.attributes = {
             vertex_position: SEMANTIC_POSITION
         };
+
+        if (options.userAttributes) {
+            for (const [semantic, name] of Object.entries(options.userAttributes)) {
+                this.attributes[name] = semantic;
+            }
+        }
 
         if (options.chunks) {
             const userChunks = options.chunks;
@@ -365,7 +371,7 @@ class LitShader {
         if (options.skin) {
             this.attributes.vertex_boneWeights = SEMANTIC_BLENDWEIGHT;
             this.attributes.vertex_boneIndices = SEMANTIC_BLENDINDICES;
-            code += skinCode(device, chunks);
+            code += ShaderGenerator.skinCode(device, chunks);
             code += "#define SKIN\n";
         } else if (options.useInstancing) {
             code += "#define INSTANCING\n";
@@ -419,10 +425,10 @@ class LitShader {
         code += this.varyingDefines;
         code += this.frontendDecl;
         code += this.frontendCode;
-        code += begin();
+        code += ShaderGenerator.begin();
         code += this.frontendFunc;
         code += "    gl_FragColor = uColor;\n";
-        code += end();
+        code += ShaderGenerator.end();
         return code;
     }
 
@@ -437,10 +443,10 @@ class LitShader {
         code += chunks.packDepthPS;
         code += this.frontendDecl;
         code += this.frontendCode;
-        code += begin();
+        code += ShaderGenerator.begin();
         code += this.frontendFunc;
         code += "    gl_FragColor = packFloat(vDepth);\n";
-        code += end();
+        code += ShaderGenerator.end();
 
         return code;
     }
@@ -505,7 +511,7 @@ class LitShader {
             code += shaderChunks.linearizeDepthPS;
         }
 
-        code += begin();
+        code += ShaderGenerator.begin();
 
         code += this.frontendFunc;
 
@@ -554,7 +560,7 @@ class LitShader {
             code += chunks.storeEVSMPS;
         }
 
-        code += end();
+        code += ShaderGenerator.end();
 
         return code;
     }
@@ -739,9 +745,9 @@ class LitShader {
         // FIXME: only add these when needed
         func.append(chunks.sphericalPS);
         func.append(chunks.decodePS);
-        func.append(gammaCode(options.gamma, chunks));
-        func.append(tonemapCode(options.toneMap, chunks));
-        func.append(fogCode(options.fog, chunks));
+        func.append(ShaderGenerator.gammaCode(options.gamma, chunks));
+        func.append(ShaderGenerator.tonemapCode(options.toneMap, chunks));
+        func.append(ShaderGenerator.fogCode(options.fog, chunks));
 
         // frontend
         func.append(this.frontendCode);
@@ -1026,7 +1032,7 @@ class LitShader {
             }
 
             if (options.useIridescence) {
-                backend.append("    vec3 iridescenceFresnel = getIridescence(saturate(dot(dViewDirW, litArgs_worldNormal)), litArgs_specularity, litArgs_iridescence);");
+                backend.append("    vec3 iridescenceFresnel = getIridescence(saturate(dot(dViewDirW, litArgs_worldNormal)), litArgs_specularity, litArgs_iridescence_thickness);");
             }
         }
 
@@ -1066,7 +1072,7 @@ class LitShader {
                 dTBN
             #if defined(LIT_IRIDESCENCE)
                 , iridescenceFresnel,
-                litArgs_iridescence
+                litArgs_iridescence_intensity
             #endif
                 );`);
         }
@@ -1101,7 +1107,7 @@ class LitShader {
                             litArgs_specularity
                         #if defined(LIT_IRIDESCENCE)
                             , iridescenceFresnel,
-                            litArgs_iridescence
+                            litArgs_iridescence_intensity
                         #endif
                             );`);
                 } else {
@@ -1379,7 +1385,7 @@ class LitShader {
                                         litArgs_specularity
                                     #if defined(LIT_IRIDESCENCE)
                                         , iridescenceFresnel, 
-                                        litArgs_iridescence
+                                        litArgs_iridescence_intensity
                                     #endif
                                     );` : `* litArgs_specularity;`));
                         }
@@ -1439,7 +1445,7 @@ class LitShader {
                         litArgs_ior
                     #if defined(LIT_IRIDESCENCE)
                         , iridescenceFresnel, 
-                        litArgs_iridescence
+                        litArgs_iridescence_intensity
                     #endif
                     );`);
             }
@@ -1508,7 +1514,7 @@ class LitShader {
 
         code.append("    evaluateBackend();");
 
-        code.append(end());
+        code.append(ShaderGenerator.end());
 
         const mergedCode = decl.code + func.code + code.code;
 
