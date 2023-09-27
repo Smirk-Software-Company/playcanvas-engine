@@ -1,0 +1,38 @@
+/**
+ * Calculates simple hash value of a string. Designed for performance, not perfect.
+ *
+ * @param {string} str - String.
+ * @returns {number} Hash value.
+ * @ignore
+ */
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    // Convert to 32bit integer
+    hash |= 0;
+  }
+  return hash;
+}
+
+/**
+ * Calculates simple 32bit hash value of an array of 32bit integer numbers. Designed for
+ * performance, but provides good distribution with small number of collisions. Based on
+ * FNV-1a non-cryptographic hash function.
+ *.
+ * @param {number[]|Uint32Array} array - Array of 32bit integer numbers to hash.
+ * @returns {number} 32bit unsigned integer hash value.
+ * @ignore
+ */
+function hash32Fnv1a(array) {
+  const prime = 16777619;
+  let hash = 2166136261;
+  for (let i = 0; i < array.length; i++) {
+    hash ^= array[i];
+    hash *= prime;
+  }
+  return hash >>> 0; // Ensure non-negative integer
+}
+
+export { hash32Fnv1a, hashCode };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaGFzaC5qcyIsInNvdXJjZXMiOlsiLi4vLi4vLi4vc3JjL2NvcmUvaGFzaC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIENhbGN1bGF0ZXMgc2ltcGxlIGhhc2ggdmFsdWUgb2YgYSBzdHJpbmcuIERlc2lnbmVkIGZvciBwZXJmb3JtYW5jZSwgbm90IHBlcmZlY3QuXG4gKlxuICogQHBhcmFtIHtzdHJpbmd9IHN0ciAtIFN0cmluZy5cbiAqIEByZXR1cm5zIHtudW1iZXJ9IEhhc2ggdmFsdWUuXG4gKiBAaWdub3JlXG4gKi9cbmZ1bmN0aW9uIGhhc2hDb2RlKHN0cikge1xuICAgIGxldCBoYXNoID0gMDtcbiAgICBmb3IgKGxldCBpID0gMCwgbGVuID0gc3RyLmxlbmd0aDsgaSA8IGxlbjsgaSsrKSB7XG4gICAgICAgIGhhc2ggPSAoKGhhc2ggPDwgNSkgLSBoYXNoKSArIHN0ci5jaGFyQ29kZUF0KGkpO1xuICAgICAgICAvLyBDb252ZXJ0IHRvIDMyYml0IGludGVnZXJcbiAgICAgICAgaGFzaCB8PSAwO1xuICAgIH1cbiAgICByZXR1cm4gaGFzaDtcbn1cblxuLyoqXG4gKiBDYWxjdWxhdGVzIHNpbXBsZSAzMmJpdCBoYXNoIHZhbHVlIG9mIGFuIGFycmF5IG9mIDMyYml0IGludGVnZXIgbnVtYmVycy4gRGVzaWduZWQgZm9yXG4gKiBwZXJmb3JtYW5jZSwgYnV0IHByb3ZpZGVzIGdvb2QgZGlzdHJpYnV0aW9uIHdpdGggc21hbGwgbnVtYmVyIG9mIGNvbGxpc2lvbnMuIEJhc2VkIG9uXG4gKiBGTlYtMWEgbm9uLWNyeXB0b2dyYXBoaWMgaGFzaCBmdW5jdGlvbi5cbiAqLlxuICogQHBhcmFtIHtudW1iZXJbXXxVaW50MzJBcnJheX0gYXJyYXkgLSBBcnJheSBvZiAzMmJpdCBpbnRlZ2VyIG51bWJlcnMgdG8gaGFzaC5cbiAqIEByZXR1cm5zIHtudW1iZXJ9IDMyYml0IHVuc2lnbmVkIGludGVnZXIgaGFzaCB2YWx1ZS5cbiAqIEBpZ25vcmVcbiAqL1xuZnVuY3Rpb24gaGFzaDMyRm52MWEoYXJyYXkpIHtcbiAgICBjb25zdCBwcmltZSA9IDE2Nzc3NjE5O1xuICAgIGxldCBoYXNoID0gMjE2NjEzNjI2MTtcblxuICAgIGZvciAobGV0IGkgPSAwOyBpIDwgYXJyYXkubGVuZ3RoOyBpKyspIHtcbiAgICAgICAgaGFzaCBePSBhcnJheVtpXTtcbiAgICAgICAgaGFzaCAqPSBwcmltZTtcbiAgICB9XG4gICAgcmV0dXJuIGhhc2ggPj4+IDA7IC8vIEVuc3VyZSBub24tbmVnYXRpdmUgaW50ZWdlclxufVxuXG5leHBvcnQgeyBoYXNoQ29kZSwgaGFzaDMyRm52MWEgfTtcbiJdLCJuYW1lcyI6WyJoYXNoQ29kZSIsInN0ciIsImhhc2giLCJpIiwibGVuIiwibGVuZ3RoIiwiY2hhckNvZGVBdCIsImhhc2gzMkZudjFhIiwiYXJyYXkiLCJwcmltZSJdLCJtYXBwaW5ncyI6IkFBQUE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxTQUFTQSxRQUFRQSxDQUFDQyxHQUFHLEVBQUU7RUFDbkIsSUFBSUMsSUFBSSxHQUFHLENBQUMsQ0FBQTtBQUNaLEVBQUEsS0FBSyxJQUFJQyxDQUFDLEdBQUcsQ0FBQyxFQUFFQyxHQUFHLEdBQUdILEdBQUcsQ0FBQ0ksTUFBTSxFQUFFRixDQUFDLEdBQUdDLEdBQUcsRUFBRUQsQ0FBQyxFQUFFLEVBQUU7QUFDNUNELElBQUFBLElBQUksR0FBSSxDQUFDQSxJQUFJLElBQUksQ0FBQyxJQUFJQSxJQUFJLEdBQUlELEdBQUcsQ0FBQ0ssVUFBVSxDQUFDSCxDQUFDLENBQUMsQ0FBQTtBQUMvQztBQUNBRCxJQUFBQSxJQUFJLElBQUksQ0FBQyxDQUFBO0FBQ2IsR0FBQTtBQUNBLEVBQUEsT0FBT0EsSUFBSSxDQUFBO0FBQ2YsQ0FBQTs7QUFFQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxTQUFTSyxXQUFXQSxDQUFDQyxLQUFLLEVBQUU7RUFDeEIsTUFBTUMsS0FBSyxHQUFHLFFBQVEsQ0FBQTtFQUN0QixJQUFJUCxJQUFJLEdBQUcsVUFBVSxDQUFBO0FBRXJCLEVBQUEsS0FBSyxJQUFJQyxDQUFDLEdBQUcsQ0FBQyxFQUFFQSxDQUFDLEdBQUdLLEtBQUssQ0FBQ0gsTUFBTSxFQUFFRixDQUFDLEVBQUUsRUFBRTtBQUNuQ0QsSUFBQUEsSUFBSSxJQUFJTSxLQUFLLENBQUNMLENBQUMsQ0FBQyxDQUFBO0FBQ2hCRCxJQUFBQSxJQUFJLElBQUlPLEtBQUssQ0FBQTtBQUNqQixHQUFBO0FBQ0EsRUFBQSxPQUFPUCxJQUFJLEtBQUssQ0FBQyxDQUFDO0FBQ3RCOzs7OyJ9

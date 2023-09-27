@@ -1,0 +1,51 @@
+import { SceneUtils } from './scene-utils.js';
+import { SceneParser } from '../parsers/scene.js';
+
+/** @typedef {import('./handler.js').ResourceHandler} ResourceHandler */
+
+/**
+ * Resource handler used for loading {@link Scene} resources.
+ *
+ * @implements {ResourceHandler}
+ * @category Graphics
+ */
+class SceneHandler {
+  /**
+   * Create a new SceneHandler instance.
+   *
+   * @param {import('../app-base.js').AppBase} app - The running {@link AppBase}.
+   * @hideconstructor
+   */
+  constructor(app) {
+    /**
+     * Type of the resource the handler handles.
+     *
+     * @type {string}
+     */
+    this.handlerType = "scene";
+    this._app = app;
+    this.maxRetries = 0;
+  }
+  load(url, callback) {
+    SceneUtils.load(url, this.maxRetries, callback);
+  }
+  open(url, data) {
+    // prevent script initialization until entire scene is open
+    this._app.systems.script.preloading = true;
+    const parser = new SceneParser(this._app, false);
+    const parent = parser.parse(data);
+
+    // set scene root
+    const scene = this._app.scene;
+    scene.root = parent;
+    this._app.applySceneSettings(data.settings);
+
+    // re-enable script initialization
+    this._app.systems.script.preloading = false;
+    return scene;
+  }
+  patch(asset, assets) {}
+}
+
+export { SceneHandler };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic2NlbmUuanMiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uL3NyYy9mcmFtZXdvcmsvaGFuZGxlcnMvc2NlbmUuanMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgU2NlbmVVdGlscyB9IGZyb20gJy4vc2NlbmUtdXRpbHMuanMnO1xuaW1wb3J0IHsgU2NlbmVQYXJzZXIgfSBmcm9tICcuLi9wYXJzZXJzL3NjZW5lLmpzJztcblxuLyoqIEB0eXBlZGVmIHtpbXBvcnQoJy4vaGFuZGxlci5qcycpLlJlc291cmNlSGFuZGxlcn0gUmVzb3VyY2VIYW5kbGVyICovXG5cbi8qKlxuICogUmVzb3VyY2UgaGFuZGxlciB1c2VkIGZvciBsb2FkaW5nIHtAbGluayBTY2VuZX0gcmVzb3VyY2VzLlxuICpcbiAqIEBpbXBsZW1lbnRzIHtSZXNvdXJjZUhhbmRsZXJ9XG4gKiBAY2F0ZWdvcnkgR3JhcGhpY3NcbiAqL1xuY2xhc3MgU2NlbmVIYW5kbGVyIHtcbiAgICAvKipcbiAgICAgKiBUeXBlIG9mIHRoZSByZXNvdXJjZSB0aGUgaGFuZGxlciBoYW5kbGVzLlxuICAgICAqXG4gICAgICogQHR5cGUge3N0cmluZ31cbiAgICAgKi9cbiAgICBoYW5kbGVyVHlwZSA9IFwic2NlbmVcIjtcblxuICAgIC8qKlxuICAgICAqIENyZWF0ZSBhIG5ldyBTY2VuZUhhbmRsZXIgaW5zdGFuY2UuXG4gICAgICpcbiAgICAgKiBAcGFyYW0ge2ltcG9ydCgnLi4vYXBwLWJhc2UuanMnKS5BcHBCYXNlfSBhcHAgLSBUaGUgcnVubmluZyB7QGxpbmsgQXBwQmFzZX0uXG4gICAgICogQGhpZGVjb25zdHJ1Y3RvclxuICAgICAqL1xuICAgIGNvbnN0cnVjdG9yKGFwcCkge1xuICAgICAgICB0aGlzLl9hcHAgPSBhcHA7XG4gICAgICAgIHRoaXMubWF4UmV0cmllcyA9IDA7XG4gICAgfVxuXG4gICAgbG9hZCh1cmwsIGNhbGxiYWNrKSB7XG4gICAgICAgIFNjZW5lVXRpbHMubG9hZCh1cmwsIHRoaXMubWF4UmV0cmllcywgY2FsbGJhY2spO1xuICAgIH1cblxuICAgIG9wZW4odXJsLCBkYXRhKSB7XG4gICAgICAgIC8vIHByZXZlbnQgc2NyaXB0IGluaXRpYWxpemF0aW9uIHVudGlsIGVudGlyZSBzY2VuZSBpcyBvcGVuXG4gICAgICAgIHRoaXMuX2FwcC5zeXN0ZW1zLnNjcmlwdC5wcmVsb2FkaW5nID0gdHJ1ZTtcblxuICAgICAgICBjb25zdCBwYXJzZXIgPSBuZXcgU2NlbmVQYXJzZXIodGhpcy5fYXBwLCBmYWxzZSk7XG4gICAgICAgIGNvbnN0IHBhcmVudCA9IHBhcnNlci5wYXJzZShkYXRhKTtcblxuICAgICAgICAvLyBzZXQgc2NlbmUgcm9vdFxuICAgICAgICBjb25zdCBzY2VuZSA9IHRoaXMuX2FwcC5zY2VuZTtcbiAgICAgICAgc2NlbmUucm9vdCA9IHBhcmVudDtcblxuICAgICAgICB0aGlzLl9hcHAuYXBwbHlTY2VuZVNldHRpbmdzKGRhdGEuc2V0dGluZ3MpO1xuXG4gICAgICAgIC8vIHJlLWVuYWJsZSBzY3JpcHQgaW5pdGlhbGl6YXRpb25cbiAgICAgICAgdGhpcy5fYXBwLnN5c3RlbXMuc2NyaXB0LnByZWxvYWRpbmcgPSBmYWxzZTtcblxuICAgICAgICByZXR1cm4gc2NlbmU7XG4gICAgfVxuXG4gICAgcGF0Y2goYXNzZXQsIGFzc2V0cykge1xuICAgIH1cbn1cblxuZXhwb3J0IHsgU2NlbmVIYW5kbGVyIH07XG4iXSwibmFtZXMiOlsiU2NlbmVIYW5kbGVyIiwiY29uc3RydWN0b3IiLCJhcHAiLCJoYW5kbGVyVHlwZSIsIl9hcHAiLCJtYXhSZXRyaWVzIiwibG9hZCIsInVybCIsImNhbGxiYWNrIiwiU2NlbmVVdGlscyIsIm9wZW4iLCJkYXRhIiwic3lzdGVtcyIsInNjcmlwdCIsInByZWxvYWRpbmciLCJwYXJzZXIiLCJTY2VuZVBhcnNlciIsInBhcmVudCIsInBhcnNlIiwic2NlbmUiLCJyb290IiwiYXBwbHlTY2VuZVNldHRpbmdzIiwic2V0dGluZ3MiLCJwYXRjaCIsImFzc2V0IiwiYXNzZXRzIl0sIm1hcHBpbmdzIjoiOzs7QUFHQTs7QUFFQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxNQUFNQSxZQUFZLENBQUM7QUFRZjtBQUNKO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7RUFDSUMsV0FBV0EsQ0FBQ0MsR0FBRyxFQUFFO0FBYmpCO0FBQ0o7QUFDQTtBQUNBO0FBQ0E7SUFKSSxJQUtBQyxDQUFBQSxXQUFXLEdBQUcsT0FBTyxDQUFBO0lBU2pCLElBQUksQ0FBQ0MsSUFBSSxHQUFHRixHQUFHLENBQUE7SUFDZixJQUFJLENBQUNHLFVBQVUsR0FBRyxDQUFDLENBQUE7QUFDdkIsR0FBQTtBQUVBQyxFQUFBQSxJQUFJQSxDQUFDQyxHQUFHLEVBQUVDLFFBQVEsRUFBRTtJQUNoQkMsVUFBVSxDQUFDSCxJQUFJLENBQUNDLEdBQUcsRUFBRSxJQUFJLENBQUNGLFVBQVUsRUFBRUcsUUFBUSxDQUFDLENBQUE7QUFDbkQsR0FBQTtBQUVBRSxFQUFBQSxJQUFJQSxDQUFDSCxHQUFHLEVBQUVJLElBQUksRUFBRTtBQUNaO0lBQ0EsSUFBSSxDQUFDUCxJQUFJLENBQUNRLE9BQU8sQ0FBQ0MsTUFBTSxDQUFDQyxVQUFVLEdBQUcsSUFBSSxDQUFBO0lBRTFDLE1BQU1DLE1BQU0sR0FBRyxJQUFJQyxXQUFXLENBQUMsSUFBSSxDQUFDWixJQUFJLEVBQUUsS0FBSyxDQUFDLENBQUE7QUFDaEQsSUFBQSxNQUFNYSxNQUFNLEdBQUdGLE1BQU0sQ0FBQ0csS0FBSyxDQUFDUCxJQUFJLENBQUMsQ0FBQTs7QUFFakM7QUFDQSxJQUFBLE1BQU1RLEtBQUssR0FBRyxJQUFJLENBQUNmLElBQUksQ0FBQ2UsS0FBSyxDQUFBO0lBQzdCQSxLQUFLLENBQUNDLElBQUksR0FBR0gsTUFBTSxDQUFBO0lBRW5CLElBQUksQ0FBQ2IsSUFBSSxDQUFDaUIsa0JBQWtCLENBQUNWLElBQUksQ0FBQ1csUUFBUSxDQUFDLENBQUE7O0FBRTNDO0lBQ0EsSUFBSSxDQUFDbEIsSUFBSSxDQUFDUSxPQUFPLENBQUNDLE1BQU0sQ0FBQ0MsVUFBVSxHQUFHLEtBQUssQ0FBQTtBQUUzQyxJQUFBLE9BQU9LLEtBQUssQ0FBQTtBQUNoQixHQUFBO0FBRUFJLEVBQUFBLEtBQUtBLENBQUNDLEtBQUssRUFBRUMsTUFBTSxFQUFFLEVBQ3JCO0FBQ0o7Ozs7In0=

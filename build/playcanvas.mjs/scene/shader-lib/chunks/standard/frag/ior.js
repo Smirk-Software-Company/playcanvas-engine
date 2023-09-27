@@ -1,0 +1,16 @@
+var iorPS = /* glsl */`
+#ifdef MAPFLOAT
+uniform float material_refractionIndex;
+#endif
+
+void getIor() {
+#ifdef MAPFLOAT
+    dIor = material_refractionIndex;
+#else
+    dIor = 1.0 / 1.5;
+#endif
+}
+`;
+
+export { iorPS as default };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW9yLmpzIiwic291cmNlcyI6WyIuLi8uLi8uLi8uLi8uLi8uLi8uLi9zcmMvc2NlbmUvc2hhZGVyLWxpYi9jaHVua3Mvc3RhbmRhcmQvZnJhZy9pb3IuanMiXSwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IGRlZmF1bHQgLyogZ2xzbCAqL2BcbiNpZmRlZiBNQVBGTE9BVFxudW5pZm9ybSBmbG9hdCBtYXRlcmlhbF9yZWZyYWN0aW9uSW5kZXg7XG4jZW5kaWZcblxudm9pZCBnZXRJb3IoKSB7XG4jaWZkZWYgTUFQRkxPQVRcbiAgICBkSW9yID0gbWF0ZXJpYWxfcmVmcmFjdGlvbkluZGV4O1xuI2Vsc2VcbiAgICBkSW9yID0gMS4wIC8gMS41O1xuI2VuZGlmXG59XG5gO1xuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLFlBQWUsVUFBVyxDQUFBO0FBQzFCO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSxDQUFDOzs7OyJ9

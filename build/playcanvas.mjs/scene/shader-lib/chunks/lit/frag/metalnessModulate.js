@@ -1,0 +1,14 @@
+var metalnessModulatePS = /* glsl */`
+
+vec3 getSpecularModulate(in vec3 specularity, in vec3 albedo, in float metalness, in float f0) {
+    vec3 dielectricF0 = f0 * specularity;
+    return mix(dielectricF0, albedo, metalness);
+}
+
+vec3 getAlbedoModulate(in vec3 albedo, in float metalness) {
+    return albedo * (1.0 - metalness);
+}
+`;
+
+export { metalnessModulatePS as default };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibWV0YWxuZXNzTW9kdWxhdGUuanMiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uLy4uLy4uLy4uL3NyYy9zY2VuZS9zaGFkZXItbGliL2NodW5rcy9saXQvZnJhZy9tZXRhbG5lc3NNb2R1bGF0ZS5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgZGVmYXVsdCAvKiBnbHNsICovYFxuXG52ZWMzIGdldFNwZWN1bGFyTW9kdWxhdGUoaW4gdmVjMyBzcGVjdWxhcml0eSwgaW4gdmVjMyBhbGJlZG8sIGluIGZsb2F0IG1ldGFsbmVzcywgaW4gZmxvYXQgZjApIHtcbiAgICB2ZWMzIGRpZWxlY3RyaWNGMCA9IGYwICogc3BlY3VsYXJpdHk7XG4gICAgcmV0dXJuIG1peChkaWVsZWN0cmljRjAsIGFsYmVkbywgbWV0YWxuZXNzKTtcbn1cblxudmVjMyBnZXRBbGJlZG9Nb2R1bGF0ZShpbiB2ZWMzIGFsYmVkbywgaW4gZmxvYXQgbWV0YWxuZXNzKSB7XG4gICAgcmV0dXJuIGFsYmVkbyAqICgxLjAgLSBtZXRhbG5lc3MpO1xufVxuYDtcbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSwwQkFBZSxVQUFXLENBQUE7QUFDMUI7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsQ0FBQzs7OzsifQ==

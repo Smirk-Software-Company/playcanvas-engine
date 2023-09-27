@@ -1,0 +1,15 @@
+import { LitShaderOptions } from '../shader-lib/programs/lit-shader-options.js';
+
+class LitMaterialOptions {
+  constructor() {
+    // array of booleans indicating which UV channels are used by the material
+    this.usedUvs = void 0;
+    // custom shader chunk to be added to the shader
+    this.shaderChunk = void 0;
+    // lit options
+    this.litOptions = new LitShaderOptions();
+  }
+}
+
+export { LitMaterialOptions };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibGl0LW1hdGVyaWFsLW9wdGlvbnMuanMiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uL3NyYy9zY2VuZS9tYXRlcmlhbHMvbGl0LW1hdGVyaWFsLW9wdGlvbnMuanMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgTGl0U2hhZGVyT3B0aW9ucyB9IGZyb20gJy4uL3NoYWRlci1saWIvcHJvZ3JhbXMvbGl0LXNoYWRlci1vcHRpb25zLmpzJztcblxuY2xhc3MgTGl0TWF0ZXJpYWxPcHRpb25zIHtcbiAgICAvLyBhcnJheSBvZiBib29sZWFucyBpbmRpY2F0aW5nIHdoaWNoIFVWIGNoYW5uZWxzIGFyZSB1c2VkIGJ5IHRoZSBtYXRlcmlhbFxuICAgIHVzZWRVdnM7XG5cbiAgICAvLyBjdXN0b20gc2hhZGVyIGNodW5rIHRvIGJlIGFkZGVkIHRvIHRoZSBzaGFkZXJcbiAgICBzaGFkZXJDaHVuaztcblxuICAgIC8vIGxpdCBvcHRpb25zXG4gICAgbGl0T3B0aW9ucyA9IG5ldyBMaXRTaGFkZXJPcHRpb25zKCk7XG59XG5cbmV4cG9ydCB7IExpdE1hdGVyaWFsT3B0aW9ucyB9O1xuIl0sIm5hbWVzIjpbIkxpdE1hdGVyaWFsT3B0aW9ucyIsImNvbnN0cnVjdG9yIiwidXNlZFV2cyIsInNoYWRlckNodW5rIiwibGl0T3B0aW9ucyIsIkxpdFNoYWRlck9wdGlvbnMiXSwibWFwcGluZ3MiOiI7O0FBRUEsTUFBTUEsa0JBQWtCLENBQUM7RUFBQUMsV0FBQSxHQUFBO0FBQ3JCO0FBQUEsSUFBQSxJQUFBLENBQ0FDLE9BQU8sR0FBQSxLQUFBLENBQUEsQ0FBQTtBQUVQO0FBQUEsSUFBQSxJQUFBLENBQ0FDLFdBQVcsR0FBQSxLQUFBLENBQUEsQ0FBQTtBQUVYO0FBQUEsSUFBQSxJQUFBLENBQ0FDLFVBQVUsR0FBRyxJQUFJQyxnQkFBZ0IsRUFBRSxDQUFBO0FBQUEsR0FBQTtBQUN2Qzs7OzsifQ==
