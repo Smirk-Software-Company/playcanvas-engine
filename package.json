@@ -129,6 +129,7 @@
     "xhr2": "^0.2.1"
   },
   "scripts": {
+    "build:smirk": "npm run build:es6_release && npm run build:types",
     "build": "rollup -c",
     "build:release": "rollup -c --environment target:release",
     "build:debug": "rollup -c --environment target:debug",
@@ -142,7 +143,7 @@
     "build:treemap": "npm run build:es5 -- --environment treemap",
     "build:treenet": "npm run build:es5 -- --environment treenet",
     "build:treesun": "npm run build:es5 -- --environment treesun",
-    "build:types": "npm run build:dts && node utils/types-fixup.mjs && rollup -c --environment target:types && node utils/types-undollar.mjs && npm run build:types:extras",
+    "build:types": "npm run build:dts && node utils/types-fixup.mjs && rollup -c --environment target:types && node utils/types-undollar.mjs",
     "build:types:extras": "tsc extras/index.js --allowJs --declaration --emitDeclarationOnly --outDir build/playcanvas-extras.mjs",
     "build:sourcemaps": "npm run build -- -m",
     "build:publish": "npm run build && npm run build:types",
